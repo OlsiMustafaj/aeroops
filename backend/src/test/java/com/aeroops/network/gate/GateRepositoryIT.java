@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -18,6 +19,9 @@ class GateRepositoryIT extends PostgresIntegrationTest {
 
     @Autowired
     AirportRepository airports;
+
+    @Autowired
+    JdbcTemplate jdbc;
 
     Airport tia;
     Airport fco;
@@ -68,9 +72,9 @@ class GateRepositoryIT extends PostgresIntegrationTest {
     void foreignKeyBlocksDeletingAirportWithGates() {
         gates.saveAndFlush(new Gate(tia, "A1", GateType.CONTACT, SizeCategory.C));
 
-        assertThatThrownBy(() -> {
-            airports.delete(tia);
-            airports.flush();
-        }).isInstanceOf(DataIntegrityViolationException.class);
+        // Plain SQL on purpose: through JPA, Hibernate refuses the delete in memory before
+        // Postgres is reached, so only a direct statement exercises the RESTRICT foreign key.
+        assertThatThrownBy(() -> jdbc.update("DELETE FROM airport WHERE id = ?", tia.getId()))
+                .isInstanceOf(DataIntegrityViolationException.class);
     }
 }
