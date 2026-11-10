@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: aeroops-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-aeroops}
+      POSTGRES_USER: ${POSTGRES_USER:-aeroops}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aeroops}
+    ports:
+      - "5432:5432"
+    volumes:
+      - aeroops-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aeroops} -d ${POSTGRES_DB:-aeroops}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  aeroops-pgdata:
