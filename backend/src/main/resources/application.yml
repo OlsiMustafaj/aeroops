@@ -15,9 +15,8 @@ spring:
           time_zone: UTC
   flyway:
     enabled: true
-  mvc:
-    problemdetails:
-      enabled: true
+  # Problem details are produced by our own GlobalExceptionHandler; Spring's built-in
+  # handler (spring.mvc.problemdetails.enabled) stays off so it can't intercept validation errors.
 
 springdoc:
   swagger-ui:
