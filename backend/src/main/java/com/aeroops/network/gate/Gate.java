@@ -14,6 +14,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 
@@ -36,7 +38,9 @@ public class Gate {
     @Column(nullable = false, length = 10)
     private GateType type;
 
+    // Without this, Hibernate maps a length-1 column to CHAR(1) and schema validation fails.
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "size_category", nullable = false, length = 1)
     private SizeCategory sizeCategory;
 
