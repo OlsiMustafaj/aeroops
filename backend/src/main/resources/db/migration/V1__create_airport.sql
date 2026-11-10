@@ -1,7 +1,7 @@
 CREATE TABLE airport (
     id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    iata_code   CHAR(3)      NOT NULL,
-    icao_code   CHAR(4)      NOT NULL,
+    iata_code   VARCHAR(3)   NOT NULL,
+    icao_code   VARCHAR(4)   NOT NULL,
     name        VARCHAR(150) NOT NULL,
     city        VARCHAR(100) NOT NULL,
     country     VARCHAR(100) NOT NULL,
@@ -9,5 +9,7 @@ CREATE TABLE airport (
     created_at  TIMESTAMPTZ  NOT NULL DEFAULT now(),
     updated_at  TIMESTAMPTZ  NOT NULL DEFAULT now(),
     CONSTRAINT uq_airport_iata UNIQUE (iata_code),
-    CONSTRAINT uq_airport_icao UNIQUE (icao_code)
+    CONSTRAINT uq_airport_icao UNIQUE (icao_code),
+    CONSTRAINT ck_airport_iata CHECK (iata_code ~ '^[A-Z]{3}$'),
+    CONSTRAINT ck_airport_icao CHECK (icao_code ~ '^[A-Z]{4}$')
 );
