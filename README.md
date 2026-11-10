@@ -123,7 +123,7 @@ These are the heart of the project. Every rule should have its own service metho
 
 ## Getting started
 
-**Prerequisites:** Java 21, Maven 3.9+, Docker. (Node 20+ once the frontend lands.)
+**Prerequisites:** Java 21 and Docker. Maven is not needed: the Maven Wrapper (`mvnw`) downloads the right version on first use. (Node 20+ once the frontend lands.)
 
 ```bash
 # 1. start the database
@@ -131,10 +131,10 @@ docker compose up -d
 
 # 2. run the backend (Flyway creates the schema on startup)
 cd backend
-mvn spring-boot:run
+./mvnw spring-boot:run        # Windows: mvnw.cmd spring-boot:run
 
 # 3. run all tests (unit + Testcontainers integration tests; needs Docker)
-mvn verify
+./mvnw verify                 # Windows: mvnw.cmd verify
 ```
 
 - Swagger UI: `http://localhost:8080/swagger-ui.html`

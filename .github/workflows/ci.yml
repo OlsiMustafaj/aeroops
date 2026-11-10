@@ -20,4 +20,4 @@ jobs:
           cache: maven
       # unit tests (surefire) + Testcontainers *IT tests (failsafe); Docker is available on ubuntu runners
       - name: Build and test
-        run: mvn -B verify
+        run: ./mvnw -B verify
