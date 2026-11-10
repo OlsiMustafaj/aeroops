@@ -2,6 +2,7 @@ package com.aeroops.network.airport;
 
 import com.aeroops.common.error.ConflictException;
 import com.aeroops.common.error.NotFoundException;
+import com.aeroops.network.gate.GateRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -23,6 +24,9 @@ class AirportServiceTest {
 
     @Mock
     AirportRepository repository;
+
+    @Mock
+    GateRepository gates;
 
     @InjectMocks
     AirportService service;
@@ -80,5 +84,28 @@ class AirportServiceTest {
 
         assertThatThrownBy(() -> service.findById(99L))
                 .isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void delete_refusedWhileAirportHasGates() {
+        Airport existing = new Airport("TIA", "LATA", "Tirana", "Tirana", "Albania", "Europe/Tirane");
+        when(repository.findById(1L)).thenReturn(Optional.of(existing));
+        when(gates.existsByAirportId(1L)).thenReturn(true);
+
+        assertThatThrownBy(() -> service.delete(1L))
+                .isInstanceOf(ConflictException.class)
+                .hasMessageContaining("still has gates");
+        verify(repository, never()).delete(any());
+    }
+
+    @Test
+    void delete_removesAirportWithoutGates() {
+        Airport existing = new Airport("TIA", "LATA", "Tirana", "Tirana", "Albania", "Europe/Tirane");
+        when(repository.findById(1L)).thenReturn(Optional.of(existing));
+        when(gates.existsByAirportId(1L)).thenReturn(false);
+
+        service.delete(1L);
+
+        verify(repository).delete(existing);
     }
 }

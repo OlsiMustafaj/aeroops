@@ -15,3 +15,12 @@ Airport `timezone` (IANA id) is used only to render local times.
 
 ## 004 — Errors as RFC 9457 problem details
 `GlobalExceptionHandler` returns `ProblemDetail`; validation errors are listed under `errors`.
+
+## 005 — Gates are nested under airports
+API is `/api/airports/{airportId}/gates`, and a gate is only looked up together with its
+airport id, so a gate id from another airport returns 404. Gate codes are unique per airport.
+Deleting an airport with gates returns 409; a `RESTRICT` foreign key backs this up in the DB.
+
+## 006 — Gate size uses ICAO code letters (A–F)
+A gate of category X accepts aircraft of category X or smaller (`SizeCategory.accommodates`).
+This is the hook for rule 12 once aircraft types exist.

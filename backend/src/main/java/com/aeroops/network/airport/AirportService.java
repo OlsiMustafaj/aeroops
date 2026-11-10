@@ -2,6 +2,7 @@ package com.aeroops.network.airport;
 
 import com.aeroops.common.error.ConflictException;
 import com.aeroops.common.error.NotFoundException;
+import com.aeroops.network.gate.GateRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,9 +16,11 @@ import java.util.Locale;
 public class AirportService {
 
     private final AirportRepository repository;
+    private final GateRepository gates;
 
-    public AirportService(AirportRepository repository) {
+    public AirportService(AirportRepository repository, GateRepository gates) {
         this.repository = repository;
+        this.gates = gates;
     }
 
     public List<AirportResponse> findAll() {
@@ -69,8 +72,13 @@ public class AirportService {
 
     @Transactional
     public void delete(Long id) {
-        // Later phases: refuse deletion while gates or flights reference the airport.
-        repository.delete(getOrThrow(id));
+        Airport airport = getOrThrow(id);
+        if (gates.existsByAirportId(id)) {
+            throw new ConflictException("Airport " + airport.getIataCode()
+                    + " still has gates; delete them first");
+        }
+        // Later phases: also refuse while flights reference the airport.
+        repository.delete(airport);
     }
 
     private Airport getOrThrow(Long id) {
